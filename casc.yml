@@ -1,0 +1,48 @@
+jenkins:
+  securityRealm:
+    local:
+      users:
+        - id: "admin"
+          name: "Admin"
+          password: "admin"
+        - id: "panda"
+          name: "Panda"
+          password: "panda"
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+        - "USER:Overall/Administer:admin"
+        - "USER:Overall/Administer:panda"
+  numExecutors: 0
+  node:
+    - permanent:
+        labelString: agent
+        nodeName: agent
+        remoteFS: /home/jenkins/
+        launcher:
+          ssh:
+            credentialsId: jenkins_agent
+            host: 192.168.44.44 
+            port: 2222
+            sshHostKeyVerificationStrategy: nonVerifyingKeyVerificationStrategy
+credentials:
+  system:
+    domainCredentials: 
+    - credentials: 
+      - usernamePassword: 
+          id: "artifactory" 
+          username: "admin" 
+          password: "password" 
+          scope: GLOBAL
+      - basicSSHUserPrivateKey: 
+          id: "jenkins_agent" 
+          username: "jenkins" 
+          privateKeySource: 
+            directEntry: 
+              privateKey: |
+                -----BEGIN RSA PRIVATE KEY-----
+                -----END RSA PRIVATE KEY-----
+          scope: GLOBAL
+unclassified:
+  location:
+    url: "http://192.168.44.44:8880/"
