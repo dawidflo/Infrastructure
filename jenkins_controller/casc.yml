@@ -46,3 +46,7 @@ credentials:
 unclassified:
   location:
     url: "http://192.168.44.44:8880/"
+jobs: 
+  - file: /usr/share/jenkins/ref/jobs/backend.groovy
+  - file: /usr/share/jenkins/ref/jobs/frontend.groovy
+  - file: /usr/share/jenkins/ref/jobs/apps_of_apps.groovy
