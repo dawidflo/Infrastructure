@@ -1,0 +1,63 @@
+version: "2.4"
+services: 
+  artifactory:
+    image: docker.bintray.io/jfrog/artifactory-jrc:latest
+    container_name: artifactory
+    ports:
+      - "8081:8081"
+      - "8082:8082"
+    volumes: ./artifactory/:/artifactory_extra_conf/ 
+    restart: always
+  healthcheck:
+    test: ["CMD", "curl", -f, "http://localhost"]
+    interval: 1m30s
+    timeout: 10s
+    retries: 3
+    start_period: 40s
+  jenkins:
+    depends_on:
+      artifactory:
+        condition: service_heatlhy
+    build: jenkins_controller
+    container_name: jenkins
+    ports: 
+      - "8880:8080"
+    volumes:
+      - ./jenkins_controller/casc.yml:/usr/share/jenkins/ref/casc.yml
+    restart: always
+  jenkins_agent:
+    depends_on:
+      - jenkins
+    container_name: jenkins_agent
+    build: jenkins_agent
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - JENKINS_AGENT_SSH_PUBKEY=ssh-rsa public_key
+    restart: always
+  sonarqube:
+    depends_on:
+      - jenkins
+    image: sonarqube:9.2.4-community
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    restart: always
+  selenium:
+    depends_on:
+      - jenkins
+    image: selenium/hub
+    container_name: selenium_hub
+    ports:
+      - "4442:"
+    restart: always
+  selenium_node:
+    depends_on:
+      - selenium_hub
+    image: selenium/node-firefox
+    container_name: firefox
+    environement:
+      - SE_EVENT_BUS_HOST=selenium_hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    restart: always
