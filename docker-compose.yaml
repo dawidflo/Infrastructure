@@ -24,6 +24,7 @@ services:
       - "8880:8080"
     volumes:
       - ./jenkins_controller/casc.yml:/usr/share/jenkins/ref/casc.yml
+      - ./jenkins_controller/jobs:/usr/share/jenkins/ref/jobs
     restart: always
   jenkins_agent:
     depends_on:
